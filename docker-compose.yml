@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  web:
+    container_name: backend
+    build: .
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+
+  mongodb:
+    container_name: mongodb
+    image: bitnami/mongodb:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - data:/bitnami/mongodb
+
+
+volumes:
+  data:
