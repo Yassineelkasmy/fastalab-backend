@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from routes.size_routes import router as SizeRouter
 from fastapi.middleware.cors import CORSMiddleware
 from database import db
 app = FastAPI(debug=True)
@@ -34,7 +33,7 @@ async def read_root():
 
 
 
-app.include_router(SizeRouter, tags=["Size CRUD"], prefix="/sizes")
+# app.include_router(SizeRouter, tags=["Size CRUD"], prefix="/sizes")
 
 @app.on_event("startup")
 async def startup():
