@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta
 from typing import Optional
+from models.token import Token,TokenData
+
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
-
-from passlib.context import CryptContext
+from auth.helpers import pwd_context, get_password_hash, verify_password
 
 from pydantic import BaseModel
 
@@ -27,13 +28,7 @@ fake_users_db = {
 }
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
 
-
-class TokenData(BaseModel):
-    username: Optional[str] = None
 
 
 class User(BaseModel):
@@ -48,7 +43,6 @@ class UserInDB(User):
 
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -57,16 +51,7 @@ app = FastAPI()
 
 
 
-def verify_password(plain_password, hashed_password):
 
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-
-
-def get_password_hash(password):
-
-    return pwd_context.hash(password)
 
 
 

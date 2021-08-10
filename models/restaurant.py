@@ -8,3 +8,5 @@ class Restaurant(Model):
     address:str
     longitude:float
     latitude:float
+
+

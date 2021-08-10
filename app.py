@@ -1,7 +1,13 @@
-from fastapi import FastAPI
+from custom_openapi import custom_openapi
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from database import db
+from auth.manager.router import router as ManagerAuthRouter
+from manager.router import router as ManagerRouter
+from fastapi_jwt_auth.exceptions import AuthJWTException
+
 app = FastAPI(debug=True)
 
 
@@ -18,10 +24,20 @@ app.add_middleware(
 
 
 
+@app.exception_handler(AuthJWTException)
+def authjwt_exception_handler(request: Request, exc: AuthJWTException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.message}
+    )
 
 
-
+#Mounting Static Files
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+#Mounting Routers
+app.include_router(ManagerAuthRouter,tags=['Manager Authentication'],prefix='/manager/auth')
+app.include_router(ManagerRouter,tags=['Manager Routes'],prefix='/manager')
 
 
 
@@ -33,7 +49,6 @@ async def read_root():
 
 
 
-# app.include_router(SizeRouter, tags=["Size CRUD"], prefix="/sizes")
 
 @app.on_event("startup")
 async def startup():
@@ -43,3 +58,5 @@ async def startup():
 @app.on_event("shutdown")
 async def shutdown():
     await db.close_database_connection()
+
+# app.openapi = custom_openapi(app)

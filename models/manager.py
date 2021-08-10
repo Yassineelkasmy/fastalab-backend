@@ -1,24 +1,30 @@
-from typing import List
+from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic.fields import Field
+from pydantic.main import BaseModel
+from pydantic.networks import EmailStr
 from .user import User
 from .restaurant import Restaurant
-
 
 
 class Manager(User):
     first_name:str
     last_name:str
-    restaurants:List[Restaurant]
+    restaurants:Optional[List[Restaurant]] 
 
+class ManagerLogin(BaseModel):
+    username:EmailStr
+    password:str = Field(...,max_length=50,min_length=8)
 
-class ManagerInDB(Manager):
+    
+
+class ManagerInDB(User):
+    first_name:str
+    last_name:str
     hashed_password:str
 
 
-class NewManager(BaseModel):
+class ManagerCreate(User):
     first_name:str
     last_name:str
-    email:str
-    phone:str
-    password:str
+    password:str = Field(...,max_length=20,min_length=8)
