@@ -20,7 +20,7 @@ class PyObjectId(ObjectId):
         field_schema.update(type='string')
 
 
-class Model(BaseModel):
+class CoreModel(BaseModel):
     id: Optional[PyObjectId] = Field(alias='_id')
     
     class Config:

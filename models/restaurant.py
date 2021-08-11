@@ -1,9 +1,9 @@
 from typing import Optional,List
 from pydantic import  Field
-from .model import Model
+from .model import CoreModel
 
 
-class Restaurant(Model):
+class Restaurant(CoreModel):
     id:str
     address:str
     longitude:float

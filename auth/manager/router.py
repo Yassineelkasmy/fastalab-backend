@@ -1,8 +1,11 @@
-from auth.manager.auth import authenticate_manager, create_manager
+from database.database import MongoManager
+from pydantic.networks import EmailStr
+from auth.manager.auth import authenticate_manager, create_manager, send_sign_up_code_verification
 from models.manager import ManagerCreate, ManagerLogin
 from auth.constants import REFRESH_TOKEN_EXPIRES_TIME, SECRET_KEY, TOKEN_EXPIRES_TIME
-from fastapi import HTTPException, Depends, APIRouter, status, Body
+from fastapi import HTTPException, Depends, APIRouter, status, Body, BackgroundTasks
 from fastapi_jwt_auth import AuthJWT
+
 
 from database import get_database
 
@@ -28,13 +31,27 @@ def get_config():
 
 
 @router.post("/signup")
-async def sign_up(new_manager: ManagerCreate  = Body(...), db=Depends(get_database)):
+async def sign_up(background_tasks: BackgroundTasks,new_manager: ManagerCreate  = Body(...), db:MongoManager=Depends(get_database),):
     manager  = await create_manager(db=db,manager=new_manager)
-
+    
     if manager:
+        background_tasks.add_task(send_sign_up_code_verification,manager.email,db)
         return manager
+
     else:
         return "email_already_exists"
+
+@router.post("/resend-signup-verification")
+async def resend_signup_verification(background_tasks: BackgroundTasks,email: EmailStr  = Body(...), db:MongoManager=Depends(get_database)):
+    manager  = await db.manager_repo.get_managerDB({'email':email})
+
+    
+    if manager and not (manager.verified):
+        background_tasks.add_task(send_sign_up_code_verification,manager.email,db)
+        return "verification_sent"
+
+    else:
+        return "user_not_exists_or_alredy_verified"
 
 
 

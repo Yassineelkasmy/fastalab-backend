@@ -1,3 +1,4 @@
+from os import XATTR_SIZE_MAX
 from models.restaurant import Restaurant
 from models.manager import Manager, ManagerInDB
 from bson import ObjectId
@@ -56,10 +57,10 @@ class ManagerRepository():
             return Manager(**manager)
         return False
 
-    async def delete_manager(self,data:dict,email:str):
+    async def delete_manager(self,email:str):
         manager = await self.collection.delete_one({"email":email})
         if manager:
-            return Manager(**manager)
+            return True
         else:
             return False
         
